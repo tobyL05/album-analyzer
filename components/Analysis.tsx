@@ -13,9 +13,9 @@ export default async function Analysis({ className, album_id } : props) {
 
     return (
         <div className={cn(className)}>
-            <Suspense fallback={<h1>Loading Album Info</h1>}>
+            {/* <Suspense fallback={<h1>Loading Album Info</h1>}> */}
                 <AlbumCard album_id={album_id}/>
-            </Suspense>
+            {/* </Suspense> */}
         </div>
     )
 

@@ -37,10 +37,10 @@ export default async function AlbumCard( { album_id } : props) {
         return (
             <>
                 <div className="w-full md:w-3/4 mx-auto border-[1px] border-black rounded-lg p-5 flex items-start flex-col space-x-0 md:items-center md:flex-row md:space-x-4">
-                    <img className="" src={albumInfo.images[0].url} width={300} height={300} alt={albumInfo.name + " cover"}/>
+                    <img className="rounded-lg" src={albumInfo.images[0].url} width={300} height={300} alt={albumInfo.name + " cover"}/>
                     <div className="mt-3">
-                        <h1 className="text-2xl md:text-4xl"> { albumInfo.name }</h1>
-                        <h1 className="text-sm">{ parseArtists(albumInfo.artists) }</h1>
+                        <h1 className="text-2xl md:text-4xl font-semibold"> { albumInfo.name }</h1>
+                        <h1 className="text-md">{ parseArtists(albumInfo.artists) }</h1>
                     </div>
                 </div>
                 <br></br>

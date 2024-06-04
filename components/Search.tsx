@@ -1,33 +1,30 @@
 "use client"
 
-import { SyntheticEvent, useCallback, useEffect, useState } from "react";
-import { Input } from "./ui/input";
-import { SearchButton } from "./ui/SearchButton";
-import { Autocomplete, Divider, TextField, debounce } from "@mui/material";
+import React, { JSX, RefAttributes, SyntheticEvent, useCallback, useEffect, useState } from "react";
+import { Autocomplete, Popper, PopperProps, TextField, debounce } from "@mui/material";
 import axios from "axios";
-import Image from "next/image";
+import { album } from "../shared/types";
+import SearchResult from "./ui/SearchResult";
+import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-type searchResult = {
-    albumId: string,
-    albumName: string,
-    albumArtists: string[],
-    albumCover: string,
-    albumRelease: string
+interface props {
+    className: string
 }
 
+export default function SearchComponent({ className }: props ) {
 
-
-
-export default function SearchComponent() {
-
+    const router = useRouter();
+    const pathName = usePathname();
+    const searchParams = useSearchParams();
     const [searchInput, setSearchInput] = useState("");
-    const [searchResults, setSearchResults] = useState<readonly searchResult[]>([])
+    const [searchResults, setSearchResults] = useState<readonly album[]>([])
     const delaySearch = useCallback(
         debounce((text, callback) => {
             setSearchResults([])
             // getOptionsAsync(text).then(callback);
             fetchData(text).then((resp) => {
-                const results: searchResult[] = resp.results
+                const results: album[] = resp.results
                 callback(results);
             })
         }, 500),
@@ -45,14 +42,11 @@ export default function SearchComponent() {
         return resp;
     }
 
-    function search(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-        throw new Error("Function not implemented.")
-    }
 
     useEffect(() => {
         if (searchInput !== "") {
             setSearchResults([])
-            delaySearch(searchInput, (results:searchResult[]) => {
+            delaySearch(searchInput, (results:album[]) => {
                 setSearchResults([...searchResults,...results])
             })
         } else {
@@ -61,24 +55,42 @@ export default function SearchComponent() {
 
     },[searchInput, delaySearch])
 
-    function selected(event:SyntheticEvent,value:searchResult) {
-        console.log(value.albumName);
+    function selected(event:SyntheticEvent,album:album) {
+        // call api and get features
+        // POST to api
+        const query = new URLSearchParams(searchParams);
+        query.set("album_id",album.id)
+        // console.log(pathName + "?" + query.toString());
+        router.push(pathName+ "?" + query.toString());
+
     }
 
+    const resultsPopper = function (props: JSX.IntrinsicAttributes & PopperProps & RefAttributes<HTMLDivElement>) {
+        return (<Popper {...props} className="w-inherit pt-5 rounded-full" placement='auto' />)
+      }
+
     return (
-        <div className="w-full mx-auto p-10 flex items-center space-x-3 ">
+        <>
             <Autocomplete
-                className="w-full"
+                className={cn(className)}
                 freeSolo
+                PopperComponent={resultsPopper}
                 onInputChange={(e, newInput, reason) => {
                     setSearchInput(newInput)
                 }}
+                sx={{
+                    "& fieldset": { border: 'none' },
+                  }}
                 options={searchResults}
-                getOptionLabel={(option: searchResult | string) => {
-                    const result: searchResult = option as searchResult
-                    return result.albumName + " - " + result.albumArtists.join(", ")
+                getOptionLabel={(option: album | string) => {
+                    const result: album = option as album
+                    return result.name + " - " + result.artists.join(", ")
                 }}
-                onChange={(event, value) => selected(event,value as searchResult)}
+                onChange={(event, value, reason) => {
+                    if (reason == "selectOption") {
+                        selected(event,value as album)
+                    }
+                }}
                 loading={searchResults.length === 0}
                 loadingText="Loading results..."
                 noOptionsText="No albums found."
@@ -86,27 +98,20 @@ export default function SearchComponent() {
                 clearOnEscape={true}
                 clearOnBlur={true}
                 filterOptions={(x) => x}
-                renderInput={(params) => <TextField {...params} label="" placeholder="Search for an album"/>}
-                renderOption={(props, option: searchResult) => {
+                renderInput={(params) => <TextField {...params} 
+                    label="" 
+                    placeholder="Search for an album"/>}
+                renderOption={(props, option: album) => {
                     return(
-                        <li {...props} className="flex flex-row p-4 space-x-3 items-center">
-                            <Image key={option.albumCover} src={option.albumCover} width={64} height={64} alt="album cover"/>
-                            <div className="">
-                                <h1 key={option.albumName} className="font-2xl w-3/4">{ option.albumName }</h1>
-                                <h1>{ option.albumArtists.join(", ") }</h1>
-                            </div>
-                            <h1 key={option.albumRelease} className="font-2xl w-1/4">({ option.albumRelease })</h1>
+                        <li {...props}
+                        key={option.id}
+                        className="flex flex-row m-4 p-4 items-center justify-between hover:bg-primary hover:text-white transition ease-in-out duration-300 rounded-lg cursor-pointer"> 
+                            <SearchResult album={option} />
                         </li>
-
                     )
                 }}
             />
-            {/* <SearchButton onClick={search} className="p-5 py-7 bg-primary"/> */}
-            
-            {/* <div className="flex items-center space-x-3 justify-center p-4">
-                <Input type="text" placeholder="Search" className="w-1/4"/>
-                <SearchButton onClick={search}/>
-            </div> */}
-        </div>
+        
+        </>
     )
 }

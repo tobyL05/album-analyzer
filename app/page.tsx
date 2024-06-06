@@ -17,11 +17,9 @@ export default function Main( { searchParams }: searchParams) {
         <Search className="w-full md:w-2/3 rounded-xl bg-white shadow-lg shadow-primary border-[1px] border-black"/>
       </div>
 
-      <div className="w-full mt-5 p-10">
-        <Suspense fallback={<h1>Loading</h1>}>
-          <Analysis className="w-full mx-auto" album_id={album_id}/>
-        </Suspense>
-      </div>
+      {album_id ? <div className="w-full mt-5 p-10">
+        <Analysis className="w-full mx-auto" album_id={album_id}/>
+      </div> : null}
 
     </>
   );

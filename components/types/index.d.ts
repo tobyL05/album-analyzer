@@ -1,11 +1,12 @@
 
 export interface GetArtistResponse {
-  artists: Artist[]
+  artists: Artist2[]
 }
 
 export interface GetAlbumResponse {
     album_type: string
     total_tracks: number
+    available_markets: string[]
     is_playable: boolean
     external_urls: ExternalUrls
     href: string
@@ -173,7 +174,7 @@ interface ExternalUrls2 {
   spotify: string
 }
 
-interface Artist2 {
+export interface Artist2 {
   external_urls: ExternalUrls3
   followers: Followers
   genres: string[]

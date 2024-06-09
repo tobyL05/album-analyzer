@@ -31,7 +31,7 @@ function getAlbumDuration(tracks: Item[]) {
     duration_ms = (duration_ms - secs) / 60;
     var mins = duration_ms % 60;
     var hrs = (duration_ms - mins) / 60;
-    return (hrs == 0 ? "" : hrs + "h ") + mins + "m " + secs + "s"
+    return (hrs == 0 ? "" : hrs + "hr ") + mins + " min " + (hrs > 0 ? "" : secs + " sec")
 }
 
 function getAlbumAvailability(markets: string[]) {
@@ -79,7 +79,8 @@ export default async function AlbumCard( { album } : props) {
 
     return (
         <>
-            <div className="w-full md:w-3/4 mx-auto border-[1px] border-black rounded-lg p-5 flex items-start flex-col space-x-0 md:items-center md:flex-row md:space-x-4 relative">
+            <iframe className="w-full md:w-3/4 mx-auto rounded-lg" src={`https://open.spotify.com/embed/album/${album.id}?utm_source=generator`} width="100%" height="352" frameBorder="0" allowFullScreen={true} allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            {/* <div className="w-full md:w-3/4 mx-auto border-[1px] border-black rounded-lg p-5 flex items-start flex-col space-x-0 md:items-center md:flex-row md:space-x-4 relative">
                 <img src={album.images[0].url} width={300} height={300} alt={album.name + " cover"}/>
                 <div className="my-5">
                     <h1 className="text-2xl md:text-4xl font-semibold"> { album.name }</h1>
@@ -89,7 +90,7 @@ export default async function AlbumCard( { album } : props) {
                     <Image className="mx-auto bg-white rounded-full" src={SpotifyLogo} alt="Spotify logo" width={20} height={20}/>
                     <h1 className="text-sm font-semibold tracking-wider">PLAY ON SPOTIFY</h1>
                 </a>
-            </div>
+            </div> */}
             <br></br>
             <div className="w-full md:w-3/4 mx-auto flex flex-col space-y-3 md:grid md:gap-2 md:space-y-0 md:place-items-stretch md:grid-cols-3 md:grid-rows-2">
                 <div className="p-5 md:row-span-2 bg-primary text-white rounded-lg">

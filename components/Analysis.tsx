@@ -28,6 +28,7 @@ export default async function Analysis({ className, album_id } : props) {
         return (
             <div className={cn(className)}>
                 <AlbumCard album={albumInfo}/>
+                <br></br>
                 <AlbumAnalysis album={albumInfo}/>
             </div>
         )

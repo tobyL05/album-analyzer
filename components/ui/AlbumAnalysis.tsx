@@ -1,14 +1,15 @@
 import { cookies } from "next/headers"
 import { AudioFeature, GetAlbumResponse, GetSeveralTracksAudioFeaturesResponse, GetSeveralTracksResponse, Item, Track } from "../types"
 import axios from "axios"
-import { Key } from "react"
-import { Divider } from "@mui/material"
+import { Divider, Tooltip } from "@mui/material"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
+import { ChevronDown } from "lucide-react"
 
 interface props {
     album: GetAlbumResponse
 }
 
-const SUPERLATIVE_KEYS = ["most_popular","least_popular","longest","shortest","most","least"]
+const FEATURE_ADJ = ["acoustic", "danceable", "energetic", "instrumental", "\"live\"","\"speechy\"","tempo","\"happy\""]
 const FEATURE_NAMES = ["acousticness","danceability","energy","instrumentalness","liveness","speechiness","tempo","valence"]
 const FEATURE_KEYS = new Map<string, number>([
     ["acousticness", 0],
@@ -20,6 +21,16 @@ const FEATURE_KEYS = new Map<string, number>([
     ["tempo",6],
     ["valence",7],
 ])
+const FEATURE_INFO = [
+    "A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic.",
+    "Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.",
+    "Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy. ",
+    "Predicts whether a track contains no vocals. \"Ooh\" and \"aah\" sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly \"vocal\". The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. Values above 0.5 are intended to represent instrumental tracks, but confidence is higher as the value approaches 1.0.",
+    "Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live.",
+    "Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 1.0 the attribute value. Values above 0.66 describe tracks that are probably made entirely of spoken words. Values between 0.33 and 0.66 describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 0.33 most likely represent music and other non-speech-like tracks.",
+    "The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration.",
+    "A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."
+]
 
 interface TrackInfo {
   track_name: string
@@ -27,7 +38,6 @@ interface TrackInfo {
   track_duration_ms: number
   track_popularity: number
   track_features: number[]
-//   track_features?: avgFeatures
 }
 
 // most and least popular
@@ -39,34 +49,16 @@ interface averages {
     avg_features: number[]
 }
 
-interface superlatives {
-    most_popular: TrackInfo
-    least_popular: TrackInfo
-    longest: TrackInfo
-    shortest: TrackInfo
-    most: {
-        acousticness: TrackInfo
-        danceability: TrackInfo
-        energy: TrackInfo
-        instrumentalness: TrackInfo
-        // key: TrackInfo
-        liveness: TrackInfo
-        speechiness: TrackInfo
-        tempo: TrackInfo
-        valence: TrackInfo
-    }
-    least: {
-        acousticness: TrackInfo
-        danceability: TrackInfo
-        energy: TrackInfo
-        instrumentalness: TrackInfo
-        // key: TrackInfo
-        liveness: TrackInfo
-        speechiness: TrackInfo
-        tempo: TrackInfo
-        valence: TrackInfo
-    }
+interface superlative {
+    track: TrackInfo
+    value: number
 }
+
+interface superlatives {
+    most: superlative[]
+    least: superlative[]
+}
+
 
 // most and least ... for each feature
 
@@ -81,7 +73,6 @@ function getAlbumTrackIDs(album: GetAlbumResponse) {
 // Requires a list of track ids
 // Returns a an array of TrackInfo
 async function getTrackDetails(trackIds: string[]) {
-    // let tracks = new Map<string, TrackInfo>()
     let tracks: TrackInfo[] = []
     const ACCESS_TOKEN = cookies().get("access_token")?.value
     const getSeveralTracksReq = await axios.get("https://api.spotify.com/v1/tracks?" + new URLSearchParams({
@@ -118,61 +109,34 @@ async function getTrackFeatures(tracks: TrackInfo[]) {
             Authorization: `Bearer ${ACCESS_TOKEN}`
         }
     })
-
+    
     const getSeveralTracksFeaturesResp: GetSeveralTracksAudioFeaturesResponse = await getSeveralTracksFeaturesReq.data
     getSeveralTracksFeaturesResp.audio_features.map((feature: AudioFeature,index) => {
-        tracks[index].track_features = [
-            feature.acousticness,
-            feature.danceability,
-            feature.energy,
-            feature.instrumentalness,
-            feature.liveness,
-            feature.speechiness,
-            feature.tempo,
-            feature.valence
-        ]
+        tracks[index].track_features = FEATURE_NAMES.map((feature_name: string) => {
+            return feature[feature_name as keyof AudioFeature] as number;
+        })
    })
 
    return tracks;
 }
 
-function getSuperlative(tracks: TrackInfo[], metric: string, isFeature?: boolean) {
-    return tracks
-        .map((track: TrackInfo) => {
-            return track.track_popularity
+function getSuperlative(tracks: TrackInfo[], most: boolean) {
+    return FEATURE_NAMES.map((feature: string, index: number) => {
+        const sortedTracks: TrackInfo[] = tracks.sort((a: TrackInfo, b: TrackInfo) => {
+            return (b.track_features[index] - a.track_features[index]) * (most ? 1 : -1) // desc if most, otherwise asc
         })
-        .sort()
+        return {
+            track: sortedTracks[0],
+            value: sortedTracks[0].track_features[index]
+        }
+    })
 }
 
-// call once to get all properties or call for each property?
+// // call once to get all properties or call for each property?
 function getSuperlatives(tracks: TrackInfo[]) {
     return {
-        most_popular: getSuperlative(tracks, "most_popular")
-        // least_popular: TrackInfo
-        // longest: TrackInfo
-        // shortest: TrackInfo
-        // most: {
-        //     acousticness: TrackInfo
-        //     danceability: TrackInfo
-        //     energy: TrackInfo
-        //     instrumentalness: TrackInfo
-        //     // key: TrackInfo
-        //     liveness: TrackInfo
-        //     speechiness: TrackInfo
-        //     tempo: TrackInfo
-        //     valence: TrackInfo
-        // }
-        // least: {
-        //     acousticness: TrackInfo
-        //     danceability: TrackInfo
-        //     energy: TrackInfo
-        //     instrumentalness: TrackInfo
-        //     // key: TrackInfo
-        //     liveness: TrackInfo
-        //     speechiness: TrackInfo
-        //     tempo: TrackInfo
-        //     valence: TrackInfo
-        // }
+        most: getSuperlative(tracks, true),
+        least: getSuperlative(tracks, false)
     }
 }
 
@@ -216,46 +180,92 @@ function round(value: number) {
     return +parseFloat(value.toString()).toFixed(2) 
 }
 
-function getBgColor(val: number) {
-    if (val < 0.3) {
-        return "red-500"
-    } else if (val >= 0.3 && val <= 0.6) {
-        return "blue-500"
-    } else {
-        return "green-300"
-    }
-}
-
 export default async function AlbumAnalysis({ album }: props) {
 
     const trackIds: string[] = getAlbumTrackIDs(album);
     const tracks: TrackInfo[] = await getTrackDetails(trackIds);
 
-    const averages = calculateAverages(tracks);
+    const averages: averages = calculateAverages(tracks);
+    const superlatives: superlatives = getSuperlatives(tracks);
+    // console.log(getSuperlatives(tracks))
 
     // how to display info? 
     return (
         <>
             <div className="w-full md:w-3/4 mx-auto mt-5">
-                <div className="bg-primary text-white flex flex-col rounded-lg p-5">
+                <h1 className="font-bold text-2xl my-2">Features (scaled out of 10)</h1>
+                    <Accordion type="multiple" className="py-1">
+                        {averages.avg_features.map((feature: number,index: number) => {
+                            let value: string | number;
+                            if (FEATURE_NAMES[index] === "tempo") {
+                                value = round(feature).toString().concat(" Bpm")
+                            } else {
+                                value = (round(feature) * 10).toFixed(1).concat("/10")
+                            }
+
+                            return(
+                                <AccordionItem key={index} value={FEATURE_NAMES[index]} className="w-full my-3">
+                                    <AccordionTrigger className="bg-primary text-white rounded-lg">
+                                        <span className="grow text-xl inline-flex justify-between items-center py-3 px-5">
+                                            <Tooltip key={index} title={FEATURE_INFO[index]} placement="right">
+                                                <h1 className="font-bold">{ capitalize(FEATURE_NAMES[index]) }</h1>
+                                            </Tooltip>
+                                            <h1 className="tracking-wide">{ value }</h1>
+                                        </span>
+                                        <ChevronDown className="h-6 w-1/6 shrink-0 transition-transform duration-200 pr-3" />
+                                    </AccordionTrigger>
+                                    <AccordionContent className="p-5 bg-white text-black text-lg">
+                                        <h1 className="my-3">{ FEATURE_INFO[index] }</h1>
+                                        <div className="flex flex-row justify-start space-x-3">
+                                            <div className="grow">
+                                                <h1 className="font-bold"> {index == 6 ? "Highest" : "Most"} { FEATURE_ADJ[index] }</h1>
+                                                <span className="text-md inline-flex justify-between space-x-5">
+                                                    <h1>{ superlatives.most[index].track.track_name}</h1>
+                                                    <h1>{ superlatives.most[index].value }</h1>
+                                                </span>
+                                            </div>
+                                            <div className="grow">
+                                                <h1 className="font-bold"> {index == 6 ? "Lowest" : "Least" } { FEATURE_ADJ[index] }</h1>
+                                                <span className="text-md inline-flex justify-between space-x-5">
+                                                    <h1>{ superlatives.least[index].track.track_name}</h1>
+                                                    <h1>{ superlatives.least[index].value }</h1>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </AccordionContent>
+                                    {/* <div key={index} className="">
+                                        {index != averages.avg_features.length-1 ? <Divider orientation="horizontal" className="bg-white" variant="middle"/> : null}
+                                    </div> */}
+
+                                </AccordionItem> 
+                            )
+                        })}
+                        
+                    </Accordion>
+
+
+                {/* <div className="bg-primary text-white flex flex-col rounded-lg p-2 md:p-5">
                     {averages.avg_features.map((feature: number,index: number) => {
                         let value: string | number;
                         if (FEATURE_NAMES[index] === "tempo") {
-                            value = round(feature).toString().concat(" bpm")
+                            value = round(feature).toString().concat(" Bpm")
                         } else {
-                            value = (round(feature) * 100).toFixed(1).concat(" / 100")
+                            value = (round(feature) * 10).toFixed(1).concat("/10")
                         }
+
                         return(
-                            <div key={index} className="">
-                                <span className="w-full bg-primary p-5 text-white text-xl rounded-lg inline-flex items-center justify-between">
-                                    <h1 className="font-bold">{ capitalize(FEATURE_NAMES[index]) }</h1>
-                                    <h1 className="">{ value }</h1>
-                                </span>
-                                {index != averages.avg_features.length-1 ? <Divider orientation="horizontal" className="bg-white" variant="middle"/> : null}
-                            </div>
+                                <div key={index} className="">
+                                    <span className="w-full bg-primary p-5 text-white text-xl rounded-lg inline-flex items-center justify-between">
+                                        <Tooltip key={index} title={FEATURE_INFO[index]} placement="right">
+                                            <h1 className="font-bold">{ capitalize(FEATURE_NAMES[index]) }</h1>
+                                        </Tooltip>
+                                        <h1 className="tracking-wide">{ value }</h1>
+                                    </span>
+                                    {index != averages.avg_features.length-1 ? <Divider orientation="horizontal" className="bg-white" variant="middle"/> : null}
+                                </div>
                         )
                     })}
-                </div>
+                </div> */}
                 <h1>Average track popularity: { round(averages.avg_popularity) }</h1>
                 <h1>Average track duration: { parseDuration(averages.avg_duration_ms) }</h1>
             </div>

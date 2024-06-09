@@ -1,7 +1,7 @@
 import { cookies } from "next/headers"
 import { AudioFeature, GetAlbumResponse, GetSeveralTracksAudioFeaturesResponse, GetSeveralTracksResponse, Item, Track } from "../types"
 import axios from "axios"
-import { Divider, Tooltip } from "@mui/material"
+import { Tooltip } from "@mui/material"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { ChevronDown } from "lucide-react"
 
@@ -216,19 +216,19 @@ export default async function AlbumAnalysis({ album }: props) {
                                     </AccordionTrigger>
                                     <AccordionContent className="p-5 bg-white text-black text-lg">
                                         <h1 className="my-3">{ FEATURE_INFO[index] }</h1>
-                                        <div className="flex flex-row justify-start space-x-3">
-                                            <div className="grow">
+                                        <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row justify-start md:space-x-10">
+                                            <div className="md:w-1/2">
                                                 <h1 className="font-bold"> {index == 6 ? "Highest" : "Most"} { FEATURE_ADJ[index] }</h1>
-                                                <span className="text-md inline-flex justify-between space-x-5">
-                                                    <h1>{ superlatives.most[index].track.track_name}</h1>
-                                                    <h1>{ superlatives.most[index].value }</h1>
+                                                <span className="text-md flex flex-row justify-between">
+                                                    <h1 className="w-fit">{ superlatives.most[index].track.track_name}</h1>
+                                                    <h1 className="w-fit">{ superlatives.most[index].value }</h1>
                                                 </span>
                                             </div>
-                                            <div className="grow">
+                                            <div className="md:w-1/2">
                                                 <h1 className="font-bold"> {index == 6 ? "Lowest" : "Least" } { FEATURE_ADJ[index] }</h1>
-                                                <span className="text-md inline-flex justify-between space-x-5">
-                                                    <h1>{ superlatives.least[index].track.track_name}</h1>
-                                                    <h1>{ superlatives.least[index].value }</h1>
+                                                <span className="text-md flex flex-row justify-between">
+                                                    <h1 className="">{ superlatives.least[index].track.track_name}</h1>
+                                                    <h1 className="">{ superlatives.least[index].value }</h1>
                                                 </span>
                                             </div>
                                         </div>
@@ -240,32 +240,9 @@ export default async function AlbumAnalysis({ album }: props) {
                                 </AccordionItem> 
                             )
                         })}
-                        
                     </Accordion>
 
 
-                {/* <div className="bg-primary text-white flex flex-col rounded-lg p-2 md:p-5">
-                    {averages.avg_features.map((feature: number,index: number) => {
-                        let value: string | number;
-                        if (FEATURE_NAMES[index] === "tempo") {
-                            value = round(feature).toString().concat(" Bpm")
-                        } else {
-                            value = (round(feature) * 10).toFixed(1).concat("/10")
-                        }
-
-                        return(
-                                <div key={index} className="">
-                                    <span className="w-full bg-primary p-5 text-white text-xl rounded-lg inline-flex items-center justify-between">
-                                        <Tooltip key={index} title={FEATURE_INFO[index]} placement="right">
-                                            <h1 className="font-bold">{ capitalize(FEATURE_NAMES[index]) }</h1>
-                                        </Tooltip>
-                                        <h1 className="tracking-wide">{ value }</h1>
-                                    </span>
-                                    {index != averages.avg_features.length-1 ? <Divider orientation="horizontal" className="bg-white" variant="middle"/> : null}
-                                </div>
-                        )
-                    })}
-                </div> */}
                 <h1>Average track popularity: { round(averages.avg_popularity) }</h1>
                 <h1>Average track duration: { parseDuration(averages.avg_duration_ms) }</h1>
             </div>

@@ -128,7 +128,7 @@ export default async function AlbumCard( { album } : props) {
                         <h1 className="text-lg truncate">{ getGenres(artistInfo) }</h1>
                     </div>
                 </Tooltip>
-                <div className="col-span-2 flex flex-row justify-evenly space-x-2 md:justify-between">
+                <div className="col-span-2 flex flex-col space-y-3 md:flex-row justify-evenly md:space-y-0 md:space-x-2 md:justify-between">
                     <div className="grow p-5 bg-red-500 text-white rounded-lg">
                         <h1 className="text-2xl font-bold">Duration</h1>
                         <h1 className="text-lg truncate">{ getAlbumDuration(album.tracks.items) }</h1>

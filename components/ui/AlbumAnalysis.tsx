@@ -164,7 +164,7 @@ function parseDuration(duration_ms: number) {
     duration_ms = (duration_ms - secs) / 60;
     let mins = duration_ms % 60;
     let hrs = (duration_ms - mins) / 60;
-    return (hrs == 0 ? "" : hrs + "hrs ") + mins + "min " + (hrs > 0 ? "" : secs + "sec")
+    return (hrs == 0 ? "" : hrs + " hrs ") + mins + " min " + (hrs > 0 ? "" : secs + " sec")
 }
 
 function capitalize(word: string){ 
@@ -172,7 +172,7 @@ function capitalize(word: string){
 }
 
 function round(value: number) {
-    return +parseFloat(value.toString()).toFixed(2) 
+    return +parseFloat(value.toString())
 }
 
 export default async function AlbumAnalysis({ album }: props) {
@@ -187,9 +187,7 @@ export default async function AlbumAnalysis({ album }: props) {
 
     const averages: averages = calculateAverages(tracks);
     const superlatives: superlatives = getSuperlatives(tracks);
-    // console.log(getSuperlatives(tracks))
-
-    // how to display info? 
+    
     return (
         <>
             <div className="w-full md:w-3/4 mx-auto mt-5">
@@ -198,7 +196,7 @@ export default async function AlbumAnalysis({ album }: props) {
                         {averages.avg_features.map((feature: number,index: number) => {
                             let value: string | number;
                             if (FEATURE_NAMES[index] === "tempo") {
-                                value = round(feature).toString().concat(" Bpm")
+                                value = round(feature).toFixed(1).concat(" Bpm")
                             } else {
                                 value = (round(feature) * 10).toFixed(1).concat("/10")
                             }
@@ -236,12 +234,10 @@ export default async function AlbumAnalysis({ album }: props) {
                         })}
                     </Accordion>
                 <div className="w-full mx-auto flex flex-col space-y-3 md:flex-row md:space-y-0 md:justify-between md:space-x-3">
-                    <Tooltip title={`This album has a popularity of ${averages.avg_popularity}/100`} leaveDelay={100}>
                         <div className="grow bg-blue-500 text-white p-5 rounded-lg">
                             <h1 className="text-2xl font-bold">Avg. track popularity</h1>
-                            <Rating value={ averages.avg_popularity/20 } precision={0.5} readOnly/>
+                            <h1>{ round(averages.avg_popularity).toFixed(1) }/100</h1>
                         </div>
-                    </Tooltip>
                     <div className="grow bg-rose-500 text-white p-5 rounded-lg">
                         <h1 className="text-2xl font-bold">Avg. track duration</h1>
                         <h1>{ parseDuration(averages.avg_duration_ms) }</h1>

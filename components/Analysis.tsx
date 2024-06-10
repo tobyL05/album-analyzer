@@ -30,7 +30,7 @@ export default async function Analysis({ className, album_id } : props) {
         }
     } catch (error) {
         return (
-            <h1>Error fetching data</h1>
+            <h1 className="w-1/2 p-4 my-10 mx-auto">An error occurred! Try searching again.</h1>
         )
     }
 
@@ -38,7 +38,6 @@ export default async function Analysis({ className, album_id } : props) {
     return (
         <div className={cn(className)}>
             <AlbumCard album={albumInfo}/>
-            <br></br>
             <AlbumAnalysis album={albumInfo}/>
         </div>
     )

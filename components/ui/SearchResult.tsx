@@ -16,7 +16,7 @@ export default function SearchResult({ album }: props) {
                     <h1 className="text-md">{ album.artists.join(", ") }</h1>
                 </div>
             </div>
-            <h1 className="text-xl">({ album.release })</h1>
+            <h1 className="hidden md:text-xl">({ album.release })</h1>
         </>
     )
 

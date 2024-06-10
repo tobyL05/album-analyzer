@@ -16,23 +16,30 @@ export default async function Analysis({ className, album_id } : props) {
 
 
     const ACCESS_TOKEN = cookies().get("access_token")?.value
-    const getAlbumInfo = await axios.get(`https://api.spotify.com/v1/albums/${album_id}`,{
-        headers: {
-            Authorization: `Bearer ${ACCESS_TOKEN}`
+    let albumInfo: GetAlbumResponse;
+    try {
+        const getAlbumInfo = await axios.get(`https://api.spotify.com/v1/albums/${album_id}`,{
+            headers: {
+                Authorization: `Bearer ${ACCESS_TOKEN}`
+            }
+        })
+        if (getAlbumInfo.status == 200) {
+            albumInfo = await getAlbumInfo.data;
+        } else {
+            throw new Error("API Error")
         }
-    })
-
-    const albumInfo:GetAlbumResponse = await getAlbumInfo.data;
-
-    if (album_id) {
+    } catch (error) {
         return (
-            <div className={cn(className)}>
-                <AlbumCard album={albumInfo}/>
-                <br></br>
-                <AlbumAnalysis album={albumInfo}/>
-            </div>
+            <h1>Error fetching data</h1>
         )
-    } else {
-        return <>Loading</>
     }
+
+
+    return (
+        <div className={cn(className)}>
+            <AlbumCard album={albumInfo}/>
+            <br></br>
+            <AlbumAnalysis album={albumInfo}/>
+        </div>
+    )
 }

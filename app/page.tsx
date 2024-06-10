@@ -1,5 +1,6 @@
 import Analysis from "@/components/Analysis";
 import Search from "@/components/Search";
+import LoadingAnalysis from "@/components/ui/LoadingAnalysis";
 import { Suspense } from "react";
 
 interface searchParams {
@@ -17,7 +18,10 @@ export default function Main( { searchParams }: searchParams) {
         <Search className="w-full md:w-2/3 rounded-xl bg-white shadow-lg shadow-primary border-[1px] border-black"/>
       </div>
 
-      {album_id ?  <Analysis className="w-full mx-auto mt-5 p-10" album_id={album_id}/> : null}
+      {album_id ?  
+        <Suspense fallback={<LoadingAnalysis/>}>
+            <Analysis className="w-full mx-auto mt-5 p-10" album_id={album_id}/>
+        </Suspense> : null}
     </>
   );
 }

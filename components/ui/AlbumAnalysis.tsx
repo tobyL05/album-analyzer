@@ -1,7 +1,7 @@
 import { cookies } from "next/headers"
 import { AudioFeature, GetAlbumResponse, GetSeveralTracksAudioFeaturesResponse, GetSeveralTracksResponse, Item, Track } from "../types"
 import axios from "axios"
-import { Tooltip } from "@mui/material"
+import { Rating, Tooltip } from "@mui/material"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { ChevronDown } from "lucide-react"
 
@@ -59,9 +59,6 @@ interface superlatives {
     least: superlative[]
 }
 
-
-// most and least ... for each feature
-
 // Max 50 tracks per album
 // keep track of duration, ids, explicit?
 function getAlbumTrackIDs(album: GetAlbumResponse) {
@@ -101,7 +98,6 @@ async function getTrackDetails(trackIds: string[]) {
 // Returns the same array with each track_features property of each element populated
 async function getTrackFeatures(tracks: TrackInfo[]) {
     const ACCESS_TOKEN = cookies().get("access_token")?.value
-
     const getSeveralTracksFeaturesReq = await axios.get("https://api.spotify.com/v1/audio-features?" + new URLSearchParams({
         ids: tracks.map((track: TrackInfo) => {return track.track_id}).join(",")
     }), {
@@ -109,13 +105,12 @@ async function getTrackFeatures(tracks: TrackInfo[]) {
             Authorization: `Bearer ${ACCESS_TOKEN}`
         }
     })
-    
-    const getSeveralTracksFeaturesResp: GetSeveralTracksAudioFeaturesResponse = await getSeveralTracksFeaturesReq.data
+    const getSeveralTracksFeaturesResp: GetSeveralTracksAudioFeaturesResponse = await getSeveralTracksFeaturesReq?.data
     getSeveralTracksFeaturesResp.audio_features.map((feature: AudioFeature,index) => {
         tracks[index].track_features = FEATURE_NAMES.map((feature_name: string) => {
             return feature[feature_name as keyof AudioFeature] as number;
         })
-   })
+    })
 
    return tracks;
 }
@@ -169,7 +164,7 @@ function parseDuration(duration_ms: number) {
     duration_ms = (duration_ms - secs) / 60;
     let mins = duration_ms % 60;
     let hrs = (duration_ms - mins) / 60;
-    return (hrs == 0 ? "" : hrs + "h ") + mins + "m " + secs + "s"
+    return (hrs == 0 ? "" : hrs + "hrs ") + mins + "min " + (hrs > 0 ? "" : secs + "sec")
 }
 
 function capitalize(word: string){ 
@@ -183,7 +178,12 @@ function round(value: number) {
 export default async function AlbumAnalysis({ album }: props) {
 
     const trackIds: string[] = getAlbumTrackIDs(album);
-    const tracks: TrackInfo[] = await getTrackDetails(trackIds);
+    let tracks: TrackInfo[]
+    try {
+        tracks = await getTrackDetails(trackIds);
+    } catch (error) {
+        return <h1>Error getting album tracks</h1>
+    }
 
     const averages: averages = calculateAverages(tracks);
     const superlatives: superlatives = getSuperlatives(tracks);
@@ -206,10 +206,8 @@ export default async function AlbumAnalysis({ album }: props) {
                             return(
                                 <AccordionItem key={index} value={FEATURE_NAMES[index]} className="w-full my-3">
                                     <AccordionTrigger className="bg-primary text-white rounded-lg">
-                                        <span className="grow text-xl inline-flex justify-between items-center py-3 px-5">
-                                            <Tooltip key={index} title={FEATURE_INFO[index]} placement="right">
-                                                <h1 className="font-bold">{ capitalize(FEATURE_NAMES[index]) }</h1>
-                                            </Tooltip>
+                                        <span className="grow text-xl inline-flex justify-between items-center p-3 md:px-5">
+                                            <h1 className="font-bold w-1/2 text-left truncate">{ capitalize(FEATURE_NAMES[index]) }</h1>
                                             <h1 className="tracking-wide">{ value }</h1>
                                         </span>
                                         <ChevronDown className="h-6 w-1/6 shrink-0 transition-transform duration-200 pr-3" />
@@ -233,18 +231,22 @@ export default async function AlbumAnalysis({ album }: props) {
                                             </div>
                                         </div>
                                     </AccordionContent>
-                                    {/* <div key={index} className="">
-                                        {index != averages.avg_features.length-1 ? <Divider orientation="horizontal" className="bg-white" variant="middle"/> : null}
-                                    </div> */}
-
                                 </AccordionItem> 
                             )
                         })}
                     </Accordion>
-
-
-                <h1>Average track popularity: { round(averages.avg_popularity) }</h1>
-                <h1>Average track duration: { parseDuration(averages.avg_duration_ms) }</h1>
+                <div className="w-full mx-auto flex flex-col space-y-3 md:flex-row md:space-y-0 md:justify-between md:space-x-3">
+                    <Tooltip title={`This album has a popularity of ${averages.avg_popularity}/100`} leaveDelay={100}>
+                        <div className="grow bg-blue-500 text-white p-5 rounded-lg">
+                            <h1 className="text-2xl font-bold">Avg. track popularity</h1>
+                            <Rating value={ averages.avg_popularity/20 } precision={0.5} readOnly/>
+                        </div>
+                    </Tooltip>
+                    <div className="grow bg-rose-500 text-white p-5 rounded-lg">
+                        <h1 className="text-2xl font-bold">Avg. track duration</h1>
+                        <h1>{ parseDuration(averages.avg_duration_ms) }</h1>
+                    </div>
+                </div>
             </div>
         </>
     )

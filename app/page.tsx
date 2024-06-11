@@ -31,12 +31,12 @@ export default function Main( { searchParams }: searchParams) {
       {album_id ?  
         <Suspense fallback={<LoadingAnalysis/>}>
             <Analysis className="w-full mx-auto mt-3 p-8" album_id={album_id}/>
-            <h1 className="p-4 text-center">made by tobs | © 2024</h1>
+            <h1 className="p-4 text-center">made by tobs | powered by Spotify | © 2024</h1>
         </Suspense> 
         : null }
 
       {album_id ? null : <div className={"w-full absolute bottom-0"}>
-        <h1 className="p-4 text-center">made by tobs | © 2024</h1>
+        <h1 className="p-4 text-center">made by tobs | powered by Spotify | © 2024</h1>
       </div>}
     </>
   );

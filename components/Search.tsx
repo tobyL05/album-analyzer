@@ -64,10 +64,6 @@ export default function SearchComponent({ className }: props ) {
         router.push(pathName+ "?" + query.toString());
     }
 
-    function getPreviousSearchResultOnRefresh() {
-        return sessionStorage.getItem("prev_search") ? sessionStorage.getItem("prev_search") : ""
-    }
-
     const resultsPopper = function (props: JSX.IntrinsicAttributes & PopperProps & RefAttributes<HTMLDivElement>) {
         return (<Popper {...props} className="w-inherit pt-5 rounded-full z-20" placement='auto' />)
       }

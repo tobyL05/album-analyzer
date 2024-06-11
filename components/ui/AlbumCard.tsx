@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Artist, Artist2, GetAlbumResponse, GetArtistResponse, Item } from "../types";
+import { AlbumResponse, Artist, ArtistResponse, Item } from "../types";
 import { cookies } from "next/headers";
 // import { Divider, Rating, Tooltip } from "@mui/material";
 import { Rating } from "@smastrom/react-rating"
@@ -10,7 +10,7 @@ import { AVAILABLE_MARKETS, COUNTRIES } from "@/public/content";
 
 
 interface props {
-    album: GetAlbumResponse
+    album: AlbumResponse
 }
 
 // function parseArtists(artists: Artist[]) {
@@ -55,11 +55,11 @@ async function getArtist(artists: Artist[]) {
             Authorization: `Bearer ${ACCESS_TOKEN}`
         }
     })
-    const resp: GetArtistResponse = await req.data
+    const resp: ArtistResponse = await req.data
     return resp;
 }
 
-function getGenres(resp: GetArtistResponse) {
+function getGenres(resp: ArtistResponse) {
     let genresMap = new Map<string, number>()
 
     resp.artists.map((artist: Artist) => {
@@ -84,7 +84,7 @@ function getGenres(resp: GetArtistResponse) {
 
 export default async function AlbumCard( { album } : props) {
 
-    const artistInfo: GetArtistResponse = await getArtist(album.artists);
+    const artistInfo: ArtistResponse = await getArtist(album.artists);
 
     return (
         <div className="">

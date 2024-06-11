@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import AlbumCard from "./ui/AlbumCard";
 import { cn } from "@/lib/utils";
 import AlbumAnalysis from "./ui/AlbumAnalysis";
-import { GetAlbumResponse } from "./types";
+import { AlbumResponse } from "./types";
 import { cookies } from "next/headers";
 
 interface props {
@@ -16,7 +16,7 @@ export default async function Analysis({ className, album_id } : props) {
 
 
     const ACCESS_TOKEN = cookies().get("access_token")?.value
-    let albumInfo: GetAlbumResponse;
+    let albumInfo: AlbumResponse;
     try {
         const getAlbumInfo = await axios.get(`https://api.spotify.com/v1/albums/${album_id}`,{
             headers: {

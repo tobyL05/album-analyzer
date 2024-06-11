@@ -24,5 +24,6 @@ async function fetchAccessToken() {
 
 export async function getAccessToken() {
     const resp: accessTokenResponse = await fetchAccessToken()
+    cookies().set("access_token",resp.access_token)
     return resp.access_token;
 }

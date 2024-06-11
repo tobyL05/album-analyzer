@@ -1,12 +1,12 @@
 import { cookies } from "next/headers"
-import { AudioFeature, GetAlbumResponse, GetSeveralTracksAudioFeaturesResponse, GetSeveralTracksResponse, Item, Track } from "../types"
+import { AudioFeature, AlbumResponse, GetSeveralTracksAudioFeaturesResponse, GetSeveralTracksResponse, Item, Track } from "../types"
 import axios from "axios"
 import { Rating, Tooltip } from "@mui/material"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { ChevronDown } from "lucide-react"
 
 interface props {
-    album: GetAlbumResponse
+    album: AlbumResponse
 }
 
 const FEATURE_ADJ = ["acoustic", "danceable", "energetic", "instrumental", "\"live\"","\"speechy\"","tempo","\"happy\""]
@@ -61,7 +61,7 @@ interface superlatives {
 
 // Max 50 tracks per album
 // keep track of duration, ids, explicit?
-function getAlbumTrackIDs(album: GetAlbumResponse) {
+function getAlbumTrackIDs(album: AlbumResponse) {
     return album.tracks.items.map((item: Item) => {
         return item.id
     })
@@ -187,7 +187,7 @@ export default async function AlbumAnalysis({ album }: props) {
 
     const averages: averages = calculateAverages(tracks);
     const superlatives: superlatives = getSuperlatives(tracks);
-    
+
     return (
         <>
             <div className="w-full md:w-3/4 mx-auto mt-5">

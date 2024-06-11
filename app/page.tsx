@@ -25,7 +25,6 @@ export default function Main( { searchParams }: searchParams) {
 
       {album_id ? null : 
       <div className="w-full md:w-2/3 mx-auto mt-3 p-10">
-        <h1 className="text-2xl font-semibold mb-3">or any of these new releases...</h1>
         <AlbumMarquee/>
       </div>}
 

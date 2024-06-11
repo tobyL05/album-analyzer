@@ -1,9 +1,9 @@
-import { album } from "../../shared/types";
+import { Album } from "../../shared/types";
 import Image from "next/image";
 
 
 interface props {
-    album: album
+    album: Album
 }
 
 export default function SearchResult({ album }: props) {

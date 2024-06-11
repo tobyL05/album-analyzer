@@ -1,9 +1,8 @@
-import { album } from "@/shared/types";
-import { Artist, type Item, type spotifySearchResult } from ".";
+import { Album, Artist, SearchResultResponse, Item } from "@/shared/types";
 
 // returns searchResults[]
-export function parseSearchAlbumResponse(response: spotifySearchResult)  {
-    let results: album[] = [];
+export function parseSearchAlbumResponse(response: SearchResultResponse)  {
+    let results: Album[] = [];
     let added: string[] = [];
     const albums: Item[] = response.albums.items;
     albums.forEach((album: Item) => {

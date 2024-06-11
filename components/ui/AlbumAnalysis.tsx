@@ -1,7 +1,6 @@
 import { cookies } from "next/headers"
-import { AudioFeature, AlbumResponse, GetSeveralTracksAudioFeaturesResponse, GetSeveralTracksResponse, Item, Track } from "../types"
+import { AlbumResponse, Item, SeveralTracksResponse, AudioFeature, AudioFeaturesResponse } from "@/shared/types"
 import axios from "axios"
-import { Rating, Tooltip } from "@mui/material"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { ChevronDown } from "lucide-react"
 
@@ -79,8 +78,8 @@ async function getTrackDetails(trackIds: string[]) {
             Authorization: `Bearer ${ACCESS_TOKEN}`
         } 
     })
-    const getSeveralTracksResp: GetSeveralTracksResponse = await getSeveralTracksReq.data
-    getSeveralTracksResp.tracks.forEach((track: Track) => {
+    const getSeveralTracksResp: SeveralTracksResponse = await getSeveralTracksReq.data
+    getSeveralTracksResp.tracks.forEach((track: Item) => {
         tracks.push({
             track_name: track.name,
             track_id: track.id,
@@ -105,7 +104,7 @@ async function getTrackFeatures(tracks: TrackInfo[]) {
             Authorization: `Bearer ${ACCESS_TOKEN}`
         }
     })
-    const getSeveralTracksFeaturesResp: GetSeveralTracksAudioFeaturesResponse = await getSeveralTracksFeaturesReq?.data
+    const getSeveralTracksFeaturesResp: AudioFeaturesResponse = await getSeveralTracksFeaturesReq?.data
     getSeveralTracksFeaturesResp.audio_features.map((feature: AudioFeature,index) => {
         tracks[index].track_features = FEATURE_NAMES.map((feature_name: string) => {
             return feature[feature_name as keyof AudioFeature] as number;

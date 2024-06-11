@@ -1,10 +1,9 @@
 import axios from "axios";
 import { NextResponse, type NextRequest } from "next/server";
-import { type spotifySearchResult } from ".";
 import { parseSearchAlbumResponse } from "./services";
 import { cookies } from "next/headers";
-import { getAccessToken } from "../auth/route";
 import { validateToken } from "@/app/actions/action";
+import { SearchResultResponse } from "@/shared/types";
 
 
 // returns an array of search results
@@ -26,14 +25,10 @@ export async function GET(request: NextRequest) {
         }
     });
 
-    const result: spotifySearchResult = await response.data;
+    const result: SearchResultResponse = await response.data;
     const cleaned_result = parseSearchAlbumResponse(result)
 
     return NextResponse.json({
         results: cleaned_result
     })
-}
-
-export async function POST(request: NextRequest) {
-    // console.log(request.body)
 }

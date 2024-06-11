@@ -1,13 +1,7 @@
+import { AlbumResponse, Artist, ArtistResponse, Item } from "@/shared/types";
 import axios from "axios";
-import { AlbumResponse, Artist, ArtistResponse, Item } from "../types";
-import { cookies } from "next/headers";
-// import { Divider, Rating, Tooltip } from "@mui/material";
-import { Rating } from "@smastrom/react-rating"
-import Image from 'next/image'
-import SpotifyLogo from "../../public/images/spotify_icon.png"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
-import { AVAILABLE_MARKETS, COUNTRIES } from "@/public/content";
 
+import { cookies } from "next/headers";
 
 interface props {
     album: AlbumResponse

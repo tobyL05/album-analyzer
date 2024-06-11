@@ -3,7 +3,7 @@
 import React, { JSX, RefAttributes, SyntheticEvent, useCallback, useEffect, useState } from "react";
 import { Autocomplete, Popper, PopperProps, TextField, debounce } from "@mui/material";
 import axios from "axios";
-import { album } from "../shared/types";
+import { Album } from "../shared/types";
 import SearchResult from "./ui/SearchResult";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -18,13 +18,12 @@ export default function SearchComponent({ className }: props ) {
     const pathName = usePathname();
     const searchParams = useSearchParams();
     const [searchInput, setSearchInput] = useState("");
-    const [searchResults, setSearchResults] = useState<readonly album[]>([])
+    const [searchResults, setSearchResults] = useState<readonly Album[]>([])
     const delaySearch = useCallback(
         debounce((text, callback) => {
             setSearchResults([])
-            // getOptionsAsync(text).then(callback);
             fetchData(text).then((resp) => {
-                const results: album[] = resp.results
+                const results: Album[] = resp.results
                 callback(results);
             })
         }, 500),
@@ -46,7 +45,7 @@ export default function SearchComponent({ className }: props ) {
     useEffect(() => {
         if (searchInput !== "") {
             setSearchResults([])
-            delaySearch(searchInput, (results:album[]) => {
+            delaySearch(searchInput, (results:Album[]) => {
                 setSearchResults([...searchResults,...results])
             })
         } else {
@@ -55,7 +54,7 @@ export default function SearchComponent({ className }: props ) {
 
     },[searchInput, delaySearch])
 
-    function selected(event:SyntheticEvent,album:album) {
+    function selected(event:SyntheticEvent,album:Album) {
         // call api and get features
         // POST to api
         const query = new URLSearchParams(searchParams);
@@ -81,13 +80,13 @@ export default function SearchComponent({ className }: props ) {
                     "& fieldset": { border: 'none' },
                   }}
                 options={searchResults}
-                getOptionLabel={(option: album | string) => {
-                    const result: album = option as album
+                getOptionLabel={(option: Album | string) => {
+                    const result: Album = option as Album
                     return result.name + " - " + result.artists.join(", ")
                 }}
                 onChange={(event, value, reason) => {
                     if (reason == "selectOption") {
-                        selected(event,value as album)
+                        selected(event,value as Album)
                     }
                 }}
                 loading={searchResults.length === 0}
@@ -100,7 +99,7 @@ export default function SearchComponent({ className }: props ) {
                 renderInput={(params) => <TextField {...params} 
                     label="" 
                     placeholder="Search for an album"/>}
-                renderOption={(props, option: album) => {
+                renderOption={(props, option: Album) => {
                     return(
                         <li {...props}
                         key={option.id}

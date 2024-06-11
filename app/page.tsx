@@ -24,7 +24,7 @@ export default function Main( { searchParams }: searchParams) {
       </div>
 
       {album_id ? null : 
-      <div className="w-full md:w-2/3 mx-auto mt-3 p-10">
+      <div className="w-full md:w-2/3 mx-auto py-4 px-10">
         <AlbumMarquee/>
       </div>}
 

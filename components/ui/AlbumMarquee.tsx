@@ -47,9 +47,9 @@ export default function AlbumMarquee() {
             <Marquee autoFill={true} pauseOnHover={true} pauseOnClick={true} speed={80}>
                 {albums ? albums.map((album) => {
                     return (
-                        <div key={album.id} className="group mx-4 px-8 py-10 rounded-lg hover:bg-secondary hover:cursor-pointer" onClick={() => {select(album.id)}}>
+                        <div key={album.id} className="group mx-5 p-4 rounded-lg hover:bg-secondary hover:cursor-pointer" onClick={() => {select(album.id)}}>
                             <Image className="" src={album.images[0].url} width={200} height={200} alt="album cover"/>
-                            <div className="py-3">
+                            <div className="pt-3">
                                 <h1 className="w-[200px] text-xl truncate font-semibold opacity-0 group-hover:opacity-100 group-hover:transition group-hover:ease-in-out">{ album.name }</h1>
                                 <h1 className="w-[200px] text-sm truncate opacity-0 group-hover:opacity-100 group-hover:transition-all group-hover:ease-in-out">{ album.artists.map((artist) => {return artist.name}).join(", ") }</h1>
                             </div>

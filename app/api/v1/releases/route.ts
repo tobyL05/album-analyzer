@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     await validateToken()
 
     const ACCESS_TOKEN = cookies().get("access_token")?.value
-    const getNewReleasesReq = await axios.get("https://api.spotify.com/v1/browse/new-releases?limit=10",{
+    const getNewReleasesReq = await axios.get("https://api.spotify.com/v1/browse/new-releases?limit=5",{
         headers: {
             Authorization: `Bearer ${ACCESS_TOKEN}`
         }
@@ -17,3 +17,5 @@ export async function GET(request: NextRequest) {
     const getNewReleasesResp: NewReleases = await getNewReleasesReq.data;
     return NextResponse.json(getNewReleasesResp);
 }
+
+export const dynamic = 'force-dynamic'
